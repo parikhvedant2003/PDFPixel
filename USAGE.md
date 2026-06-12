@@ -400,9 +400,6 @@ The codebase is two decoupled pieces against a frozen contract:
 Run the test suite:
 
 ```bash
-pip install -r requirements-dev.txt
+pip install -e ".[dev]"
 pytest -v
 ```
-
-The product spec and implementation plan live under
-`docs/superpowers/plans/`.

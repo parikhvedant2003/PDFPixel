@@ -132,5 +132,3 @@ pytest -v
 - **Windows 11**: entry under "Show more options" (legacy verb).
 - **macOS**: Quick Actions are experimental, pending on-device verification.
 - Format/DPI fixed at PNG / 200 in v1; configurable later.
-
-Full plan: `docs/superpowers/plans/2026-06-12-cross-platform.md`.
