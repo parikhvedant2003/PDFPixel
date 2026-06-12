@@ -1,0 +1,17 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=KonqPopupMenu/Plugin
+MimeType=application/pdf;
+Actions=PdfPixelAll;PdfPixelRange;
+X-KDE-Submenu=Convert to Images
+X-KDE-Priority=TopLevel
+
+[Desktop Action PdfPixelAll]
+Name=All Pages
+Icon=application-pdf
+Exec=/usr/bin/pdfpixel %F
+
+[Desktop Action PdfPixelRange]
+Name=Custom Range…
+Icon=application-pdf
+Exec=/usr/bin/pdfpixel --ask %f

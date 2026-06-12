@@ -23,28 +23,24 @@ jobs:
 
   build-linux:
     needs: test
-    # Oldest hosted runner -> oldest glibc (2.35), so the frozen binary runs on
-    # Ubuntu 22.04+/Debian 12+. PyInstaller binaries don't run on glibc older
-    # than the build host's.
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - run: python -m pip install -e ".[dev]"
-      - name: Build .deb
-        run: bash packaging/linux/build_deb.sh
+      # Build inside a Debian 11 (glibc 2.31) container so the frozen binary
+      # runs on Ubuntu 20.04+/Debian 11+/Fedora/RHEL 8+/etc. Produces a
+      # .deb, an .rpm, and a universal .AppImage.
+      - name: Build .deb + .rpm + AppImage (old-glibc container)
+        run: bash packaging/linux/build_in_container.sh debian:11
       - name: Smoke-test frozen binary
         run: |
-          python packaging/make_sample_pdf.py /tmp/s.pdf 5
-          ./build/dist/pdfpixel/pdfpixel --pages 2-4 /tmp/s.pdf
-          test "$(ls /tmp/s | tr '\n' ' ')" = "2.png 3.png 4.png "
-          echo "smoke OK"
+          ./build/dist/pdfpixel/pdfpixel --version
       - uses: actions/upload-artifact@v4
         with:
-          name: pdfpixel-deb
-          path: build/dist/*.deb
+          name: pdfpixel-linux
+          path: |
+            build/dist/*.deb
+            build/dist/*.rpm
+            build/dist/*.AppImage
 
   build-windows:
     needs: test

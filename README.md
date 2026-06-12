@@ -14,19 +14,35 @@ Grab the installer for your OS from the [Releases](../../releases) page.
 > security prompt on first run. Steps to get past it are below. Permanent
 > signing/notarization is tracked in issue #2.
 
-### Linux (Debian/Ubuntu, GNOME/Nautilus)
+### Linux (any distro)
 
-1. Install the package (pulls `python3-nautilus` + `libnotify-bin`; the PDF
-   engine and dialog are bundled — no poppler needed):
-   ```bash
-   sudo apt install ./pdfpixel_*.deb
-   ```
-2. Open **Files** (Nautilus) and **right-click a PDF** → **Convert to Images**.
-   - One PDF → submenu **All Pages** / **Custom Range…**
-   - If the menu doesn't appear, fully quit Files (`killall nautilus`) and reopen.
+Pick the artifact for your distro (all built on glibc 2.31 → run on Ubuntu
+20.04+, Debian 11+, Fedora, RHEL 8+, openSUSE, etc.). No security prompt.
 
-No security prompt on Linux. *(From source instead of the `.deb`: `./install.sh`
-— that path uses system Python and needs `python3-tk` for the dialog.)*
+| Distro family | Install |
+|---|---|
+| Debian/Ubuntu/Mint/Pop!_OS | `sudo apt install ./pdfpixel_*.deb` |
+| Fedora/RHEL/openSUSE | `sudo dnf install ./pdfpixel-*.rpm` |
+| **Any** (no install) | `chmod +x PDFPixel-*.AppImage` then run it |
+
+The PDF engine and dialog are bundled — no poppler, no system Python. The
+`.deb`/`.rpm` only need `libnotify` (notifications); the file-manager binding is
+optional (install it for the right-click menu).
+
+**Right-click menu** (installed by the `.deb`/`.rpm`):
+
+- **GNOME Files (Nautilus)**, **Cinnamon (Nemo)**, **MATE (Caja)** → submenu
+  **Convert to Images ▸ All Pages / Custom Range…** (needs the matching binding:
+  `nautilus-python` / `nemo-python` / `python3-caja`).
+- **KDE Dolphin** → a *Convert to Images* ServiceMenu *(experimental)*.
+- **XFCE Thunar** → one-time manual setup, see
+  `integrations/linux/thunar-actions.md`.
+- After installing, log out/in or `killall nautilus nemo caja` so the menu loads.
+
+The **AppImage** is the app/CLI only (no file-manager menu) but runs anywhere:
+`./PDFPixel-*.AppImage --pages 1,3-5 file.pdf`.
+
+*(From source instead: `./install.sh` — uses system Python, needs `python3-tk`.)*
 
 ### Windows 10/11
 
