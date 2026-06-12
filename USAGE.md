@@ -1,5 +1,11 @@
 # PDFPixel — User Guide
 
+> **Cross-platform install** (Linux `.deb` / Windows `.exe` / macOS `.dmg`) is in
+> the [README](README.md). This guide goes deep on the **Linux/Nautilus** flow
+> and the page-range behaviour, which is identical on every OS. Some Linux
+> internals below (zenity, dependency list) describe the from-source `install.sh`
+> path; the shipped `.deb` bundles its engine and a tkinter dialog instead.
+
 PDFPixel turns any PDF into a folder of page images straight from your file
 manager. Right-click a PDF in **Nautilus** (the GNOME Files app) → **Convert to
 Images** → every page is written out as a PNG inside a new folder next to the
