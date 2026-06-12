@@ -34,13 +34,7 @@ jobs:
         run: bash packaging/linux/build_deb.sh
       - name: Smoke-test frozen binary
         run: |
-          python - <<'PY'
-          from fpdf import FPDF
-          p = FPDF()
-          for i in range(1, 6):
-              p.add_page(); p.set_font("Helvetica", size=48); p.cell(0, 60, f"P{i}")
-          p.output("/tmp/s.pdf")
-          PY
+          python packaging/make_sample_pdf.py /tmp/s.pdf 5
           ./build/dist/pdfpixel/pdfpixel --pages 2-4 /tmp/s.pdf
           test "$(ls /tmp/s | tr '\n' ' ')" = "2.png 3.png 4.png "
           echo "smoke OK"
@@ -49,11 +43,35 @@ jobs:
           name: pdfpixel-deb
           path: build/dist/*.deb
 
-  # build-windows / build-macos jobs are added in Phases 3 and 4.
+  build-windows:
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install -e ".[dev]"
+      - run: choco install innosetup -y --no-progress
+      - name: Build installer
+        run: powershell -ExecutionPolicy Bypass -File packaging\windows\build_exe.ps1
+      - name: Smoke-test frozen exe
+        shell: pwsh
+        run: |
+          python packaging/make_sample_pdf.py s.pdf 5
+          Start-Process -FilePath ".\build\dist\pdfpixel\pdfpixel.exe" -ArgumentList "--pages","2-4","s.pdf" -Wait -NoNewWindow
+          if (-not (Test-Path "s\2.png")) { throw "smoke failed" }
+          Write-Host "smoke OK"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pdfpixel-exe
+          path: build/dist/pdfpixel-setup.exe
+
+  # build-macos job is added in Phase 4.
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [build-linux]
+    needs: [build-linux, build-windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4

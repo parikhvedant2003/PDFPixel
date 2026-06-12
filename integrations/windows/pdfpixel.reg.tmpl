@@ -1,0 +1,22 @@
+Windows Registry Editor Version 5.00
+
+; Reference / manual-install template for the PDFPixel context menu (per-user).
+; The installer (packaging/windows/pdfpixel.iss) writes these automatically.
+; To use by hand: replace __EXE__ with the full path to pdfpixel.exe
+; (double backslashes), e.g. C:\\Users\\you\\AppData\\Local\\Programs\\PDFPixel\\pdfpixel.exe
+
+[HKEY_CURRENT_USER\Software\Classes\SystemFileAssociations\.pdf\shell\PdfPixel]
+"MUIVerb"="Convert to Images"
+"ExtendedSubCommandsKey"="PdfPixel.SubCommands"
+
+[HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\01all]
+"MUIVerb"="All Pages"
+
+[HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\01all\command]
+@="\"__EXE__\" \"%1\""
+
+[HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\02range]
+"MUIVerb"="Custom Range..."
+
+[HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\02range\command]
+@="\"__EXE__\" --ask \"%1\""
