@@ -3,7 +3,7 @@
 ; Expects the PyInstaller onedir at build\dist\pdfpixel\ (see build_exe.ps1).
 
 #define AppName "PDFPixel"
-#define AppVersion "0.2.0"
+#define AppVersion "0.2.1"
 #define Exe "{app}\pdfpixel.exe"
 
 [Setup]

@@ -23,7 +23,10 @@ jobs:
 
   build-linux:
     needs: test
-    runs-on: ubuntu-latest
+    # Oldest hosted runner -> oldest glibc (2.35), so the frozen binary runs on
+    # Ubuntu 22.04+/Debian 12+. PyInstaller binaries don't run on glibc older
+    # than the build host's.
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

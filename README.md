@@ -45,7 +45,7 @@ The build is unsigned, and **recent macOS (Sequoia) no longer offers a
 right-click "Open"** for downloaded scripts — it only shows *Move to Trash*. Use
 the Terminal method, which bypasses Gatekeeper's launch gate cleanly:
 
-1. Download **`pdfpixel-0.2.0.dmg`** and **double-click it** to mount it
+1. Download **`pdfpixel-0.2.1.dmg`** and **double-click it** to mount it
    (a `PDFPixel` volume appears with the app, the Quick Actions, and an installer).
 2. Open **Terminal** (⌘-Space → "Terminal") and run:
    ```bash
