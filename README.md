@@ -52,14 +52,18 @@ pdfpixel --pages 1,3-5,9 report.pdf # pages 1, 3, 4, 5, 9
 ## Development
 
 ```bash
-pip install -r requirements-dev.txt
+pip install -e ".[dev]"
 pytest -v
 ```
 
-`src/pdfpixel.py` is the conversion CLI (fully unit-tested, including real
-`pdftoppm` runs). `src/pdfpixel_nautilus.py` is the thin Nautilus `MenuProvider`
-that shells out to it in the background, verified by manual click-test (the
-Nautilus API can't be exercised under pytest).
+`pdfpixel/core.py` is the portable conversion engine (pypdfium2 + Pillow), fully
+unit-tested with real rendering. `pdfpixel/cli.py` is the entry point;
+`dialog.py`/`notify.py` are the tkinter prompt and per-OS notification.
+`integrations/<os>/` holds the thin file-manager shims (verified by manual
+click-test — the Nautilus/Finder/Explorer APIs can't be exercised under pytest).
+
+> **Cross-platform packaging (Linux `.deb` / Windows `.exe` / macOS `.dmg`) is
+> in progress** — see `docs/superpowers/plans/2026-06-12-cross-platform.md`.
 
 ## Notes / scope
 

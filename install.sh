@@ -1,41 +1,38 @@
 #!/usr/bin/env bash
+# Dev / from-source install for Linux. The shipping artifact is the .deb
+# (see packaging/linux); this is for hacking on a checkout.
 set -euo pipefail
 
-BIN_DIR="$HOME/.local/bin"
+HERE="$(cd "$(dirname "$0")" && pwd)"
 EXT_DIR="$HOME/.local/share/nautilus-python/extensions"
-SRC="$(cd "$(dirname "$0")" && pwd)/src"
 
-echo "==> Checking dependencies"
-missing_pkgs=()
-command -v pdftoppm    >/dev/null 2>&1 || missing_pkgs+=("poppler-utils")
-command -v notify-send >/dev/null 2>&1 || missing_pkgs+=("libnotify-bin")
-command -v zenity      >/dev/null 2>&1 || missing_pkgs+=("zenity")
-dpkg -l python3-nautilus >/dev/null 2>&1 || missing_pkgs+=("python3-nautilus")
+echo "==> Checking system dependencies"
+missing=()
+command -v notify-send >/dev/null 2>&1 || missing+=("libnotify-bin")
+dpkg -l python3-nautilus >/dev/null 2>&1 || missing+=("python3-nautilus")
+# tkinter is bundled in the shipped .deb's frozen binary; a from-source install
+# uses the system Python, which needs python3-tk for the Custom Range dialog.
+python3 -c "import tkinter" >/dev/null 2>&1 || missing+=("python3-tk")
 
-if [ "${#missing_pkgs[@]}" -gt 0 ]; then
-    echo "Missing: ${missing_pkgs[*]}"
-    echo "Install with:  sudo apt install ${missing_pkgs[*]}"
-    read -r -p "Run that now with sudo? [y/N] " ans
+if [ "${#missing[@]}" -gt 0 ]; then
+    echo "Missing: ${missing[*]}"
+    read -r -p "Run 'sudo apt install ${missing[*]}' now? [y/N] " ans
     if [[ "$ans" =~ ^[Yy]$ ]]; then
-        sudo apt update && sudo apt install -y "${missing_pkgs[@]}"
+        sudo apt update && sudo apt install -y "${missing[@]}"
     else
-        echo "Install the packages above, then re-run this script." >&2
+        echo "Install the packages above, then re-run." >&2
         exit 1
     fi
 fi
 
-echo "==> Installing helper -> $BIN_DIR/pdfpixel"
-mkdir -p "$BIN_DIR"
-install -m 0755 "$SRC/pdfpixel.py" "$BIN_DIR/pdfpixel"
+echo "==> Installing pdfpixel (pip --user: console script + pypdfium2/pillow)"
+python3 -m pip install --user "$HERE"
 
-echo "==> Installing extension -> $EXT_DIR/pdfpixel.py"
+echo "==> Installing Nautilus extension -> $EXT_DIR/pdfpixel.py"
 mkdir -p "$EXT_DIR"
-install -m 0644 "$SRC/pdfpixel_nautilus.py" "$EXT_DIR/pdfpixel.py"
+install -m 0644 "$HERE/integrations/linux/pdfpixel_nautilus.py" "$EXT_DIR/pdfpixel.py"
 
 echo "==> Reloading Nautilus"
-# Plain signal, not `nautilus -q`: launching the nautilus binary loads GTK and
-# can crash under a polluted shell env (e.g. a snap-packaged terminal). The
-# daemon respawns with the new extension when Files is next opened.
 killall nautilus 2>/dev/null || true
 
 echo "Done. Open Files (from your dock) and right-click a PDF -> 'Convert to Images'."
