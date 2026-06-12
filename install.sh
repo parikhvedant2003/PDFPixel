@@ -2,13 +2,14 @@
 set -euo pipefail
 
 BIN_DIR="$HOME/.local/bin"
-EXT_DIR="$HOME/.local/share/nautilus/python-extensions"
+EXT_DIR="$HOME/.local/share/nautilus-python/extensions"
 SRC="$(cd "$(dirname "$0")" && pwd)/src"
 
 echo "==> Checking dependencies"
 missing_pkgs=()
 command -v pdftoppm    >/dev/null 2>&1 || missing_pkgs+=("poppler-utils")
 command -v notify-send >/dev/null 2>&1 || missing_pkgs+=("libnotify-bin")
+command -v zenity      >/dev/null 2>&1 || missing_pkgs+=("zenity")
 dpkg -l python3-nautilus >/dev/null 2>&1 || missing_pkgs+=("python3-nautilus")
 
 if [ "${#missing_pkgs[@]}" -gt 0 ]; then
@@ -32,6 +33,9 @@ mkdir -p "$EXT_DIR"
 install -m 0644 "$SRC/pdfpixel_nautilus.py" "$EXT_DIR/pdfpixel.py"
 
 echo "==> Reloading Nautilus"
-nautilus -q || true
+# Plain signal, not `nautilus -q`: launching the nautilus binary loads GTK and
+# can crash under a polluted shell env (e.g. a snap-packaged terminal). The
+# daemon respawns with the new extension when Files is next opened.
+killall nautilus 2>/dev/null || true
 
-echo "Done. Right-click a PDF and choose 'Convert to Images'."
+echo "Done. Open Files (from your dock) and right-click a PDF -> 'Convert to Images'."

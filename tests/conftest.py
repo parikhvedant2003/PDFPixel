@@ -24,6 +24,11 @@ def pdf3(tmp_path):
 
 
 @pytest.fixture
+def pdf12(tmp_path):
+    return _make_pdf(tmp_path / "doc12.pdf", pages=12)
+
+
+@pytest.fixture
 def pdf_encrypted(tmp_path):
     return _make_pdf(tmp_path / "secret.pdf", pages=2, user_password="hunter2")
 
