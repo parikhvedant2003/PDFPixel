@@ -10,31 +10,72 @@ fully local. Works on **Linux, Windows, and macOS**.
 
 Grab the installer for your OS from the [Releases](../../releases) page.
 
+> The installers are **unsigned** (v1), so Windows and macOS show a one-time
+> security prompt on first run. Steps to get past it are below. Permanent
+> signing/notarization is tracked in issue #2.
+
 ### Linux (Debian/Ubuntu, GNOME/Nautilus)
 
-```bash
-sudo apt install ./pdfpixel_*.deb
-```
+1. Install the package (pulls `python3-nautilus` + `libnotify-bin`; the PDF
+   engine and dialog are bundled — no poppler needed):
+   ```bash
+   sudo apt install ./pdfpixel_*.deb
+   ```
+2. Open **Files** (Nautilus) and **right-click a PDF** → **Convert to Images**.
+   - One PDF → submenu **All Pages** / **Custom Range…**
+   - If the menu doesn't appear, fully quit Files (`killall nautilus`) and reopen.
 
-Depends on `python3-nautilus` (hosts the menu) and `libnotify-bin` (notifications);
-`apt` pulls them in. The PDF engine and dialog are bundled — no poppler needed.
-Then open **Files** and right-click a PDF.
-
-*(From source: `./install.sh` — needs `python3-tk` for the dialog.)*
+No security prompt on Linux. *(From source instead of the `.deb`: `./install.sh`
+— that path uses system Python and needs `python3-tk` for the dialog.)*
 
 ### Windows 10/11
 
-Run **`pdfpixel-setup.exe`** (per-user, no admin). On first run Windows SmartScreen
-may warn — click **More info ▸ Run anyway**. Right-click a PDF → **Convert to
-Images**. On Windows 11 it sits under **Show more options**.
+1. Download **`pdfpixel-setup.exe`** and run it (**per-user, no admin**).
+2. **SmartScreen prompt** — "Windows protected your PC":
+   click **More info** → **Run anyway**.
+3. Finish the installer (installs to `%LOCALAPPDATA%\Programs\PDFPixel`).
+4. **Right-click a PDF** → **Convert to Images** → **All Pages** / **Custom Range…**.
+   - **Windows 11:** it lives under **Show more options** (or press **Shift+F10**).
 
-### macOS
+Uninstall via *Settings ▸ Apps* (removes the menu entry too).
 
-Open **`pdfpixel-*.dmg`**, then double-click **Install PDFPixel.command**.
-The build is unsigned, so the first launch is blocked by Gatekeeper — **right-click
-the command ▸ Open** (or run `xattr -dr com.apple.quarantine` on the mounted
-volume). Then right-click a PDF in Finder → **Quick Actions ▸ PDFPixel**.
-*(Experimental — see Notes.)*
+### macOS  *(experimental — see Notes)*
+
+The build is unsigned, and **recent macOS (Sequoia) no longer offers a
+right-click "Open"** for downloaded scripts — it only shows *Move to Trash*. Use
+the Terminal method, which bypasses Gatekeeper's launch gate cleanly:
+
+1. Download **`pdfpixel-0.2.0.dmg`** and **double-click it** to mount it
+   (a `PDFPixel` volume appears with the app, the Quick Actions, and an installer).
+2. Open **Terminal** (⌘-Space → "Terminal") and run:
+   ```bash
+   bash "/Volumes/PDFPixel/Install PDFPixel.command"
+   ```
+   If it errors writing to `/Applications`, prefix with `sudo`:
+   ```bash
+   sudo bash "/Volumes/PDFPixel/Install PDFPixel.command"
+   ```
+   This copies the app to `/Applications/PDFPixel`, installs the two Quick
+   Actions to `~/Library/Services`, and clears the quarantine flag.
+3. **Right-click a PDF** in Finder → **Quick Actions** →
+   **PDFPixel: All Pages** / **PDFPixel: Custom Range…**.
+4. If the Quick Action isn't listed: **System Settings → Privacy & Security →
+   Extensions → Finder** (or **Keyboard → Keyboard Shortcuts → Services**) and
+   enable PDFPixel.
+
+**Always-works fallback** (no Finder integration needed), any OS — run the bundled
+CLI directly:
+
+```bash
+/Applications/PDFPixel/pdfpixel --pages 1,3-5 ~/file.pdf   # macOS
+"%LOCALAPPDATA%\Programs\PDFPixel\pdfpixel.exe" file.pdf    # Windows
+pdfpixel --pages 5-8 file.pdf                               # Linux
+```
+
+> **Want no prompt at all on macOS?** Either build it yourself on your Mac
+> (locally-built files carry no download-quarantine, so they just open —
+> `bash packaging/macos/build_dmg.sh`), or wait for a signed + notarized release
+> (issue #2, needs an Apple Developer ID).
 
 ## Usage
 
