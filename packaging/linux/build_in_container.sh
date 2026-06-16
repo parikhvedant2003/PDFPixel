@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Build the Linux artifacts (.deb + universal .AppImage) inside an old-glibc
-# container so the frozen binary runs on Debian 11+/Ubuntu 20.04+/RHEL 8+/etc.
+# container so the frozen binary runs on Debian 11+/Ubuntu 20.04+/RHEL 9+/etc.
+# (glibc >= 2.31; older distros use the Flatpak or pip build instead.)
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 IMAGE="${1:-debian:11}"   # glibc 2.31

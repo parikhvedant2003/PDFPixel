@@ -10,18 +10,34 @@ app to open. Works on **Linux, Windows, and macOS**.
 
 📖 [USAGE.md](USAGE.md) — every action, in and out · 🛠 [ARCHITECTURE.md](ARCHITECTURE.md) · 🤝 [CONTRIBUTING.md](CONTRIBUTING.md) · 📦 [DISTRIBUTING.md](packaging/linux/DISTRIBUTING.md)
 
+## Supported platforms
+
+| Platform | Status | How to run it |
+|---|---|---|
+| **Linux**, glibc ≥ 2.31 — Ubuntu 20.04+, Debian 11+, Mint 20+, Pop!_OS 20.04+, Fedora 32+, **RHEL/Rocky/Alma 9+**, openSUSE Leap 15.3+/Tumbleweed, Arch & derivatives | ✅ native | `.deb` / `.rpm` / AppImage / AUR |
+| **Older or musl Linux** — RHEL/Rocky/Alma 8, Debian 10, Ubuntu 18.04, CentOS 7, Alpine (glibc < 2.31 or musl) | ✅ portable | **Flatpak** (own runtime, any distro) or `pipx install pdfpixel` |
+| **CPU architectures** | ✅ | x86-64 (amd64) **and** ARM64 (aarch64) — both built in CI |
+| **Windows** 10 / 11 | ✅ | `pdfpixel-setup.exe` (per-user, unsigned) |
+| **macOS** 12+ (Intel & Apple Silicon) | ⚠️ experimental | `.dmg`, **unsigned** — Terminal install (below) |
+
+> **Signing status — builds are unsigned.** We don't have an **Apple Developer
+> ID**, so the macOS build can't be signed/notarized: expect a Gatekeeper prompt
+> and use the Terminal install method below. Windows shows a one-time SmartScreen
+> prompt. The native right-click menu ships only with the Linux `.deb`/`.rpm`/AUR
+> packages — AppImage, Flatpak and pip are CLI/app-only (a sandbox/portability
+> limit, not a choice).
+
 ## Install
 
 Grab the artifact for your OS from the [Releases](../../releases) page.
 
-> The installers are **unsigned** (v1), so Windows and macOS show a one-time
-> security prompt on first run — steps below. Permanent signing/notarization is
-> planned.
+### Linux
 
-### Linux (any distro)
-
-Artifacts are built on glibc 2.31, so they run on Ubuntu 20.04+, Debian 11+,
-Fedora, RHEL 8+, openSUSE, etc. — amd64 **and** arm64. No security prompt.
+Native packages are built on glibc 2.31, so they run on **glibc ≥ 2.31**
+(Ubuntu 20.04+, Debian 11+, Fedora 32+, RHEL/Rocky/Alma 9+, openSUSE Leap 15.3+),
+amd64 **and** arm64, with no security prompt. On **older distros** (RHEL 8,
+Debian 10, Ubuntu 18.04, CentOS 7) or **musl** (Alpine), use **Flatpak** or
+`pipx install pdfpixel` instead.
 
 | Distro family | Install |
 |---|---|
@@ -117,8 +133,10 @@ The codebase is a thin file-manager shim that launches a self-contained CLI
 - **Self-contained**: each installer bundles a frozen Python runtime, the PDF
   engine (PDFium via `pypdfium2`, `pikepdf`), and the tkinter dialog. No system
   Python or poppler required.
-- **Unsigned (v1)** — hence the SmartScreen / Gatekeeper prompts above; signing +
-  notarization are planned.
+- **Unsigned** — hence the SmartScreen / Gatekeeper prompts above. macOS
+  signing/notarization needs an Apple Developer ID we don't currently have, so the
+  Terminal install is the supported macOS path; Windows signing may come later
+  with a certificate.
 - **Sandboxed builds** (Flatpak/Snap) and the AppImage/pip CLI can't install a
   host file-manager menu — that's a platform limit. The full right-click menu
   ships with the `.deb`/`.rpm`/AUR packages.

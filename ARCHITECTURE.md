@@ -146,7 +146,8 @@ runtime, KDE/Thunar are regenerated. (Add the matching CLI behaviour in
 
 ## Build & distribution (short version)
 Linux artifacts are built by PyInstaller **inside a Debian 11 (glibc 2.31)
-container** so the frozen binary runs on Ubuntu 20.04+/RHEL 8+/etc., producing
+container** so the frozen binary runs on glibc ≥ 2.31 (Ubuntu 20.04+, RHEL 9+,
+etc.; older distros use Flatpak/pip), producing
 `.deb` + `.rpm` + AppImage for amd64 **and** arm64 (CI matrix). Windows uses Inno
 Setup, macOS a `.dmg`. The version is single-sourced from
 `pdfpixel/__init__.py:__version__` (pyproject reads it dynamically). Full channel
