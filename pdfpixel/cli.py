@@ -5,7 +5,7 @@
            [--format {png,jpg,webp,tiff}] [--dpi N] FILE [...]
   pdfpixel merge    FILE.pdf FILE2.pdf...   concatenate into one PDF
   pdfpixel split    FILE.pdf                one single-page PDF per page
-  pdfpixel compress FILE.pdf                qpdf-optimized copy
+  pdfpixel compress [--quality low|medium|high] FILE.pdf   shrink images + qpdf
   pdfpixel --version
 
 The default verb is ``convert``: unless the first token is one of
@@ -131,15 +131,34 @@ def _split(argv, notifier) -> int:
     return 0
 
 
+def _hsize(n: int) -> str:
+    """Human-readable byte size: 678 KB, 4.2 MB."""
+    for unit in ("B", "KB", "MB", "GB"):
+        if n < 1024 or unit == "GB":
+            return f"{n:.0f} {unit}" if unit == "B" else f"{n:.1f} {unit}"
+        n /= 1024.0
+
+
 def _compress(argv, notifier) -> int:
     parser = argparse.ArgumentParser(prog="pdfpixel compress")
     parser.add_argument("file")
+    parser.add_argument("--quality", choices=("low", "medium", "high"),
+                        default="medium",
+                        help="image compression level (default: medium)")
     args = parser.parse_args(argv)
-    r = pdfops.compress(Path(args.file))
+    src = Path(args.file)
+    before = src.stat().st_size if src.exists() else 0
+    r = pdfops.compress(src, quality=args.quality)
     if not r.ok:
         notifier(r.error, "")
         return 1
-    summary = "Compressed"
+    after = r.path.stat().st_size
+    if before and after < before:
+        summary = f"Compressed {_hsize(before)} → {_hsize(after)} (-{(1 - after / before) * 100:.0f}%)"
+    elif before:
+        summary = f"Compressed {_hsize(before)} → {_hsize(after)} (no size reduction)"
+    else:
+        summary = "Compressed"
     notifier(summary, r.path.name)
     print(summary)
     return 0

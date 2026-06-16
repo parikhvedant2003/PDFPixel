@@ -241,21 +241,29 @@ def test_split_failure_returns_1(monkeypatch):
 
 
 def test_compress_dispatches_to_pdfops(tmp_path, monkeypatch):
-    monkeypatch.setattr(
-        pdfops, "compress",
-        lambda p: core.FileResult(tmp_path / "doc_compressed.pdf", ok=True, pages=3),
-    )
+    out = tmp_path / "doc_compressed.pdf"
+    out.write_bytes(b"x" * 10)  # output must exist for the size report
+    captured = {}
+
+    def fake_compress(p, quality="medium"):
+        captured["quality"] = quality
+        return core.FileResult(out, ok=True, pages=3)
+
+    monkeypatch.setattr(pdfops, "compress", fake_compress)
     msgs = []
-    rc = cli.main(["compress", "doc.pdf"],
+    rc = cli.main(["compress", "--quality", "low", "doc.pdf"],
                   notifier=lambda s, b="": msgs.append((s, b)))
     assert rc == 0
-    assert msgs[0] == ("Compressed", "doc_compressed.pdf")
+    assert captured["quality"] == "low"          # --quality threaded through
+    assert msgs[0][0].startswith("Compressed")   # size-delta summary
+    assert msgs[0][1] == "doc_compressed.pdf"
 
 
 def test_compress_failure_returns_1(monkeypatch):
     monkeypatch.setattr(
         pdfops, "compress",
-        lambda p: core.FileResult(p, ok=False, error="encrypted or unreadable PDF"),
+        lambda p, quality="medium": core.FileResult(
+            p, ok=False, error="encrypted or unreadable PDF"),
     )
     msgs = []
     rc = cli.main(["compress", "doc.pdf"],
@@ -293,7 +301,8 @@ def test_compress_real_pdf_end_to_end(pdf3):
                   notifier=lambda s, b="": msgs.append((s, b)))
     assert rc == 0
     assert (pdf3.parent / "doc_compressed.pdf").exists()
-    assert msgs[0] == ("Compressed", "doc_compressed.pdf")
+    assert msgs[0][0].startswith("Compressed")
+    assert msgs[0][1] == "doc_compressed.pdf"
 
 
 # --- usage errors ----------------------------------------------------------
