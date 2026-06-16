@@ -1,3 +1,3 @@
 """PDFPixel — render each page of one or more PDFs to PNG images."""
 
-__version__ = "0.2.1"
+__version__ = "0.3.0"
