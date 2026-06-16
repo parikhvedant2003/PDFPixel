@@ -1,0 +1,53 @@
+# Flatpak manifest for PDFPixel.
+#
+# IMPORTANT — sandbox limits vs. the .deb/.rpm/AUR builds:
+#   * A Flatpak CANNOT install host file-manager extensions, so there is NO
+#     inline "Convert to Images" right-click submenu. Instead PDFPixel registers
+#     as a handler for application/pdf and shows up under "Open With".
+#   * "Open With -> PDFPixel" converts ALL pages (Exec=pdfpixel %f). The custom
+#     page-range dialog (--ask) is omitted because tkinter is not in the
+#     freedesktop runtime. Users who need ranges should use the .deb/.rpm/AUR
+#     build or the CLI (`flatpak run io.github.parikhvedant2003.PDFPixel --pages 2-4 f.pdf`).
+#
+# Local build/test:
+#   flatpak install -y flathub org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08
+#   flatpak-builder --user --install --force-clean build-dir \
+#       packaging/linux/flatpak/io.github.parikhvedant2003.PDFPixel.yaml
+#
+# For a Flathub submission, replace the `dir` source with a tagged git/archive
+# source and pre-generate offline pip sources with flatpak-pip-generator
+# (Flathub build sandboxes have no network), and add at least one screenshot
+# to the metainfo.
+app-id: io.github.parikhvedant2003.PDFPixel
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: pdfpixel
+
+finish-args:
+  - --filesystem=home   # read source PDFs, write the PNGs next to them
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+
+modules:
+  - name: python-deps
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app --no-build-isolation pypdfium2 pillow
+    # Flathub: replace the network pip install above with generated offline
+    # sources (flatpak-pip-generator pypdfium2 pillow).
+
+  - name: pdfpixel
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app --no-build-isolation .
+      - install -Dm644 packaging/linux/flatpak/io.github.parikhvedant2003.PDFPixel.desktop
+          /app/share/applications/io.github.parikhvedant2003.PDFPixel.desktop
+      - install -Dm644 packaging/linux/flatpak/io.github.parikhvedant2003.PDFPixel.metainfo.xml
+          /app/share/metainfo/io.github.parikhvedant2003.PDFPixel.metainfo.xml
+      - python3 -c "from PIL import Image, ImageDraw; img=Image.new('RGBA',(256,256),(32,96,180,255)); ImageDraw.Draw(img).text((70,110),'PDF',fill=(255,255,255,255)); img.save('icon.png')"
+      - install -Dm644 icon.png /app/share/icons/hicolor/256x256/apps/io.github.parikhvedant2003.PDFPixel.png
+    sources:
+      - type: dir
+        path: ../../..

@@ -23,12 +23,21 @@ jobs:
 
   build-linux:
     needs: test
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest      # x86_64 / amd64
+            arch: amd64
+          - runner: ubuntu-24.04-arm   # GitHub-hosted aarch64 runner
+            arch: arm64
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
       # Build inside a Debian 11 (glibc 2.31) container so the frozen binary
-      # runs on Ubuntu 20.04+/Debian 11+/Fedora/RHEL 8+/etc. Produces a
-      # .deb, an .rpm, and a universal .AppImage.
+      # runs on Ubuntu 20.04+/Debian 11+/Fedora/RHEL 8+/etc. Docker pulls the
+      # debian:11 image matching the runner's arch, so the same script yields
+      # native amd64 and arm64 artifacts (.deb, .rpm, universal .AppImage).
       - name: Build .deb + .rpm + AppImage (old-glibc container)
         run: bash packaging/linux/build_in_container.sh debian:11
       - name: Smoke-test frozen binary
@@ -36,7 +45,7 @@ jobs:
           ./build/dist/pdfpixel/pdfpixel --version
       - uses: actions/upload-artifact@v4
         with:
-          name: pdfpixel-linux
+          name: pdfpixel-linux-${{ matrix.arch }}
           path: |
             build/dist/*.deb
             build/dist/*.rpm
@@ -97,6 +106,32 @@ jobs:
         with:
           name: pdfpixel-dmg
           path: build/dist/*.dmg
+
+  publish-pypi:
+    # Publish the pure-Python package to PyPI on tagged releases so anyone can
+    # `pip install pdfpixel` (or `pipx install pdfpixel`) on any distro.
+    # Uses PyPI Trusted Publishing (OIDC) — NO API-token secret required.
+    # One-time setup before the first tag: create a "pending publisher" at
+    # https://pypi.org/manage/account/publishing/ with
+    #   project: pdfpixel | owner: parikhvedant2003 | repo: PDFPixel
+    #   workflow: build.yml | environment: pypi
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write  # required for Trusted Publishing
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build sdist + wheel
+        run: |
+          python -m pip install --upgrade build
+          python -m build
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')

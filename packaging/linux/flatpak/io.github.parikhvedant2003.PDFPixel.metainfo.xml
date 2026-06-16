@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.parikhvedant2003.PDFPixel</id>
+  <name>PDFPixel</name>
+  <summary>Convert each PDF page to a PNG image</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <developer id="io.github.parikhvedant2003">
+    <name>Vedant Parikh</name>
+  </developer>
+  <description>
+    <p>
+      PDFPixel renders every page of a PDF to a PNG image. Open a PDF with
+      PDFPixel to convert all of its pages; the images are written alongside the
+      source file.
+    </p>
+    <p>
+      Note: the desktop/AUR packages add an inline "Convert to Images" right-click
+      menu (with a custom page-range option) to GNOME Files, Nemo, Caja and
+      Dolphin. The Flatpak runs sandboxed, so it integrates via "Open With"
+      and converts all pages.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.parikhvedant2003.PDFPixel.desktop</launchable>
+  <url type="homepage">https://github.com/parikhvedant2003/PDFPixel</url>
+  <url type="bugtracker">https://github.com/parikhvedant2003/PDFPixel/issues</url>
+  <content_rating type="oars-1.1"/>
+  <!-- Flathub requires at least one screenshot; add one before submitting:
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/parikhvedant2003/PDFPixel/master/docs/screenshot.png</image>
+    </screenshot>
+  </screenshots>
+  -->
+  <releases>
+    <release version="0.2.1"/>
+  </releases>
+</component>

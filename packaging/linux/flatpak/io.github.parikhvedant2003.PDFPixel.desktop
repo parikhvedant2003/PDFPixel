@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=PDFPixel
+Comment=Convert each PDF page to a PNG image
+Exec=pdfpixel %f
+Icon=io.github.parikhvedant2003.PDFPixel
+Terminal=false
+Categories=Utility;Graphics;
+MimeType=application/pdf;

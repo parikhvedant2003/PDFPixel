@@ -81,7 +81,7 @@ fpm -s dir -t rpm -n pdfpixel -v "$VERSION" \
     --license MIT --url "https://github.com/parikhvedant2003/PDFPixel" \
     --depends libnotify \
     --after-install "$BUILD/rpm_post.sh" --after-remove "$BUILD/rpm_post.sh" \
-    --package "$DIST/pdfpixel-${VERSION}.x86_64.rpm" \
+    --package "$DIST/pdfpixel-${VERSION}.$(uname -m).rpm" \
     -C "$STAGE" --exclude DEBIAN opt usr
 
 # ---- AppImage (universal; runs on any glibc >= builder's) ------------------

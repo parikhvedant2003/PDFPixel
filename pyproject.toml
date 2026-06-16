@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pdfpixel"
-version = "0.2.1"
+dynamic = ["version"]
 description = "Right-click a PDF -> every page as a PNG. Cross-platform (Linux/Windows/macOS)."
 readme = "README.md"
 requires-python = ">=3.8"
@@ -23,3 +23,8 @@ pdfpixel = "pdfpixel.cli:run"
 
 [tool.setuptools]
 packages = ["pdfpixel"]
+
+# Single source of truth for the version: pdfpixel/__init__.py __version__.
+# setuptools reads it statically (no import), so no build-time dep needed.
+[tool.setuptools.dynamic]
+version = { attr = "pdfpixel.__version__" }

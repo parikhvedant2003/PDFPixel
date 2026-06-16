@@ -1,0 +1,23 @@
+pkgbase = pdfpixel
+	pkgdesc = Right-click a PDF -> every page as a PNG. Adds a 'Convert to Images' menu to GNOME Files / Nemo / Caja / Dolphin.
+	pkgver = 0.2.1
+	pkgrel = 1
+	url = https://github.com/parikhvedant2003/PDFPixel
+	arch = any
+	license = MIT
+	makedepends = python-build
+	makedepends = python-installer
+	makedepends = python-wheel
+	makedepends = python-setuptools
+	depends = python
+	depends = python-pillow
+	depends = python-pypdfium2
+	depends = libnotify
+	depends = tk
+	optdepends = python-nautilus: right-click entry in GNOME Files
+	optdepends = python-nemo: right-click entry in Nemo (Cinnamon)
+	optdepends = python-caja: right-click entry in Caja (MATE)
+	source = pdfpixel-0.2.1.tar.gz::https://github.com/parikhvedant2003/PDFPixel/archive/refs/tags/v0.2.1.tar.gz
+	sha256sums = SKIP
+
+pkgname = pdfpixel
