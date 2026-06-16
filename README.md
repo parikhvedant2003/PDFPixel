@@ -1,150 +1,126 @@
 # PDFPixel
 
-Right-click any PDF → **Convert to Images** → every page becomes a PNG (200 DPI)
-in a sibling folder named after the PDF. One click, no dialogs for "all pages",
-fully local. Works on **Linux, Windows, and macOS**.
+Right-click a PDF → the **PDFPixel** menu → turn its pages into images, or
+merge / split / compress it — straight from your file manager, fully local, no
+app to open. Works on **Linux, Windows, and macOS**.
 
-📖 Detailed walkthrough: [USAGE.md](USAGE.md).
+- **Convert** every page (or a range) to **PNG / JPG / WEBP / TIFF** at any DPI.
+- **Merge** several PDFs into one, **split** a PDF into per-page files.
+- **Compress** — real image downsampling that keeps text sharp and selectable.
+
+📖 [USAGE.md](USAGE.md) — every action, in and out · 🛠 [ARCHITECTURE.md](ARCHITECTURE.md) · 🤝 [CONTRIBUTING.md](CONTRIBUTING.md) · 📦 [DISTRIBUTING.md](packaging/linux/DISTRIBUTING.md)
 
 ## Install
 
-Grab the installer for your OS from the [Releases](../../releases) page.
+Grab the artifact for your OS from the [Releases](../../releases) page.
 
 > The installers are **unsigned** (v1), so Windows and macOS show a one-time
-> security prompt on first run. Steps to get past it are below. Permanent
-> signing/notarization is tracked in issue #2.
+> security prompt on first run — steps below. Permanent signing/notarization is
+> planned.
 
 ### Linux (any distro)
 
-Pick the artifact for your distro (all built on glibc 2.31 → run on Ubuntu
-20.04+, Debian 11+, Fedora, RHEL 8+, openSUSE, etc.). No security prompt.
+Artifacts are built on glibc 2.31, so they run on Ubuntu 20.04+, Debian 11+,
+Fedora, RHEL 8+, openSUSE, etc. — amd64 **and** arm64. No security prompt.
 
 | Distro family | Install |
 |---|---|
 | Debian/Ubuntu/Mint/Pop!_OS | `sudo apt install ./pdfpixel_*.deb` |
 | Fedora/RHEL/openSUSE | `sudo dnf install ./pdfpixel-*.rpm` |
+| Arch/CachyOS/EndeavourOS | `yay -S pdfpixel` *(AUR)* |
 | **Any** (no install) | `chmod +x PDFPixel-*.AppImage` then run it |
+| Any (Python) | `pipx install pdfpixel` *(CLI only)* |
 
 The PDF engine and dialog are bundled — no poppler, no system Python. The
-`.deb`/`.rpm` only need `libnotify` (notifications); the file-manager binding is
-optional (install it for the right-click menu).
+`.deb`/`.rpm` install the **right-click menu** for GNOME Files (Nautilus),
+Cinnamon (Nemo), MATE (Caja) and KDE Dolphin (install the matching binding —
+`nautilus-python` / `nemo-python` / `python3-caja` — for the GTK ones); XFCE
+Thunar takes a one-time manual step (`integrations/linux/thunar-actions.md`).
+After installing, reload the file manager (`nautilus -q`) or log out/in.
 
-**Right-click menu** (installed by the `.deb`/`.rpm`):
-
-- **GNOME Files (Nautilus)**, **Cinnamon (Nemo)**, **MATE (Caja)** → submenu
-  **Convert to Images ▸ All Pages / Custom Range…** (needs the matching binding:
-  `nautilus-python` / `nemo-python` / `python3-caja`).
-- **KDE Dolphin** → a *Convert to Images* ServiceMenu *(experimental)*.
-- **XFCE Thunar** → one-time manual setup, see
-  `integrations/linux/thunar-actions.md`.
-- After installing, log out/in or `killall nautilus nemo caja` so the menu loads.
-
-The **AppImage** is the app/CLI only (no file-manager menu) but runs anywhere:
+The **AppImage** and **pip/Flatpak** builds are the app/CLI only (no host
+right-click menu — a sandbox/portability limit), but run anywhere:
 `./PDFPixel-*.AppImage --pages 1,3-5 file.pdf`.
 
-*(From source instead: `./install.sh` — uses system Python, needs `python3-tk`.)*
+*(From a checkout: `./install.sh` — uses system Python, needs `python3-tk`.)*
 
 ### Windows 10/11
 
 1. Download **`pdfpixel-setup.exe`** and run it (**per-user, no admin**).
-2. **SmartScreen prompt** — "Windows protected your PC":
-   click **More info** → **Run anyway**.
+2. **SmartScreen** — "Windows protected your PC": **More info** → **Run anyway**.
 3. Finish the installer (installs to `%LOCALAPPDATA%\Programs\PDFPixel`).
-4. **Right-click a PDF** → **Convert to Images** → **All Pages** / **Custom Range…**.
-   - **Windows 11:** it lives under **Show more options** (or press **Shift+F10**).
+4. **Right-click a PDF** → **PDFPixel** → **All Pages** / **Custom Range…**
+   (Windows 11: under **Show more options**, or press **Shift+F10**).
 
 Uninstall via *Settings ▸ Apps* (removes the menu entry too).
 
-### macOS  *(experimental — see Notes)*
+### macOS  *(experimental)*
 
-The build is unsigned, and **recent macOS (Sequoia) no longer offers a
-right-click "Open"** for downloaded scripts — it only shows *Move to Trash*. Use
-the Terminal method, which bypasses Gatekeeper's launch gate cleanly:
+The build is unsigned, and recent macOS no longer offers a right-click "Open" for
+downloaded scripts, so use Terminal (it bypasses Gatekeeper's launch gate
+cleanly):
 
-1. Download **`pdfpixel-0.2.1.dmg`** and **double-click it** to mount it
-   (a `PDFPixel` volume appears with the app, the Quick Actions, and an installer).
-2. Open **Terminal** (⌘-Space → "Terminal") and run:
+1. Download **`pdfpixel-*.dmg`** and double-click to mount it.
+2. In **Terminal**, run (prefix with `sudo` if it can't write to `/Applications`):
    ```bash
    bash "/Volumes/PDFPixel/Install PDFPixel.command"
    ```
-   If it errors writing to `/Applications`, prefix with `sudo`:
-   ```bash
-   sudo bash "/Volumes/PDFPixel/Install PDFPixel.command"
-   ```
-   This copies the app to `/Applications/PDFPixel`, installs the two Quick
-   Actions to `~/Library/Services`, and clears the quarantine flag.
-3. **Right-click a PDF** in Finder → **Quick Actions** →
-   **PDFPixel: All Pages** / **PDFPixel: Custom Range…**.
-4. If the Quick Action isn't listed: **System Settings → Privacy & Security →
-   Extensions → Finder** (or **Keyboard → Keyboard Shortcuts → Services**) and
-   enable PDFPixel.
+   This copies the app to `/Applications/PDFPixel`, installs the Quick Actions to
+   `~/Library/Services`, and clears the quarantine flag.
+3. **Right-click a PDF** in Finder → **Quick Actions** → **PDFPixel: All Pages** /
+   **PDFPixel: Custom Range…**.
+4. Not listed? Enable it under **System Settings → Privacy & Security →
+   Extensions → Finder** (or **Keyboard → Keyboard Shortcuts → Services**).
 
-**Always-works fallback** (no Finder integration needed), any OS — run the bundled
-CLI directly:
+> No prompt at all: build it yourself on your Mac (locally-built files carry no
+> quarantine) — `bash packaging/macos/build_dmg.sh`.
+
+**Always-works fallback** (any OS) — run the bundled CLI directly:
 
 ```bash
-/Applications/PDFPixel/pdfpixel --pages 1,3-5 ~/file.pdf   # macOS
-"%LOCALAPPDATA%\Programs\PDFPixel\pdfpixel.exe" file.pdf    # Windows
-pdfpixel --pages 5-8 file.pdf                               # Linux
+/Applications/PDFPixel/pdfpixel --pages 1,3-5 ~/file.pdf    # macOS
+"%LOCALAPPDATA%\Programs\PDFPixel\pdfpixel.exe" file.pdf     # Windows
+pdfpixel --pages 5-8 file.pdf                                # Linux
 ```
 
-> **Want no prompt at all on macOS?** Either build it yourself on your Mac
-> (locally-built files carry no download-quarantine, so they just open —
-> `bash packaging/macos/build_dmg.sh`), or wait for a signed + notarized release
-> (issue #2, needs an Apple Developer ID).
-
-## Usage
-
-- **All Pages** — converts every page to `1.png`, `2.png`, … (zero-padded to the
-  page count: `01.png` for a 12-page PDF).
-- **Custom Range…** — a prompt (showing the page count) asks which pages:
-
-  | You type | You get |
-  |---|---|
-  | `5-8` | pages 5–8 |
-  | `3` | page 3 |
-  | `5-` | page 5 to the end |
-  | `-8` | start through page 8 |
-  | `1,3-5,9` | a comma-separated mix |
-
-- Output folder collisions get a ` (n)` suffix — existing data is never overwritten.
-- Mixed/multi selection: non-PDFs skipped; each PDF gets its own folder.
-
-### Command line
-
-The same engine is a CLI (`pdfpixel` on Linux/macOS, `pdfpixel.exe` on Windows):
+## Usage at a glance
 
 ```bash
-pdfpixel file.pdf                  # all pages
-pdfpixel --pages 5-8 file.pdf      # pages 5–8
-pdfpixel --pages 1,3-5,9 file.pdf  # a mix
-pdfpixel --ask file.pdf            # pop the range dialog
+pdfpixel file.pdf                          # all pages → PNG @ 200 DPI
+pdfpixel --pages 1,3-5,9 file.pdf          # a page-range mix
+pdfpixel --format jpg --dpi 300 file.pdf   # JPG at print resolution
+pdfpixel --ask file.pdf                    # pop the Custom… dialog
+pdfpixel merge a.pdf b.pdf                 # → merged.pdf
+pdfpixel split report.pdf                  # → report_p1.pdf, report_p2.pdf, …
+pdfpixel compress --quality low scan.pdf   # shrink images
 ```
 
-Exit codes: `0` ok · `1` ≥1 file failed · `2` no files / malformed `--pages`.
+Outputs land beside the source and never overwrite it. Exit codes: `0` ok ·
+`1` ≥1 file failed · `2` no files / malformed `--pages`. Full reference and the
+right-click flow are in **[USAGE.md](USAGE.md)**.
 
 ## Development
 
 ```bash
 pip install -e ".[dev]"
-pytest -v
+pytest -q
 ```
 
-- `pdfpixel/core.py` — portable engine (pypdfium2 + Pillow), fully unit-tested.
-- `pdfpixel/cli.py` · `dialog.py` (tkinter) · `notify.py` (per-OS).
-- `integrations/<os>/` — thin file-manager shims (manual click-test).
-- `packaging/<os>/` — `.deb` / `.exe` (Inno Setup) / `.dmg` builders.
-- CI (`.github/workflows/build.yml`) runs tests on all 3 OSes and builds every
-  installer; a `vX.Y.Z` tag publishes a Release.
+The codebase is a thin file-manager shim that launches a self-contained CLI
+(`pdfpixel/`: `core` rendering, `pdfops` merge/split/compress, `cli`, `dialog`,
+`notify`); the menu is generated from one `ACTIONS` list. See
+**[ARCHITECTURE.md](ARCHITECTURE.md)** for the design and
+**[CONTRIBUTING.md](CONTRIBUTING.md)** for setup, build, and release steps.
 
 ## Notes / scope
 
 - **Self-contained**: each installer bundles a frozen Python runtime, the PDF
-  engine (PDFium via `pypdfium2`), and the tkinter dialog. No system Python or
-  poppler required.
-- **Unsigned (v1)** — hence the SmartScreen / Gatekeeper prompts above. Code
-  signing + notarization are planned.
-- **Linux**: Nautilus only (Nemo/Caja/Dolphin later).
-- **Windows 11**: entry under "Show more options" (legacy verb).
-- **macOS**: Quick Actions are experimental, pending on-device verification.
-- Format/DPI fixed at PNG / 200 in v1; configurable later.
+  engine (PDFium via `pypdfium2`, `pikepdf`), and the tkinter dialog. No system
+  Python or poppler required.
+- **Unsigned (v1)** — hence the SmartScreen / Gatekeeper prompts above; signing +
+  notarization are planned.
+- **Sandboxed builds** (Flatpak/Snap) and the AppImage/pip CLI can't install a
+  host file-manager menu — that's a platform limit. The full right-click menu
+  ships with the `.deb`/`.rpm`/AUR packages.
+- **Windows/macOS native menus** currently expose All Pages + Custom Range; the
+  newer actions are available there via the CLI (parity is in progress).
