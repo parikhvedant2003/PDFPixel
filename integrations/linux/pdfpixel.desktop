@@ -2,16 +2,36 @@
 Type=Service
 ServiceTypes=KonqPopupMenu/Plugin
 MimeType=application/pdf;
-Actions=PdfPixelAll;PdfPixelRange;
-X-KDE-Submenu=Convert to Images
+Actions=PdfPixelAll;PdfPixelFirst;PdfPixelCustom;PdfPixelMerge;PdfPixelSplit;PdfPixelCompress;
+X-KDE-Submenu=PDFPixel
 X-KDE-Priority=TopLevel
 
 [Desktop Action PdfPixelAll]
-Name=All Pages
+Name=All Pages → PNG
 Icon=application-pdf
 Exec=/usr/bin/pdfpixel %F
 
-[Desktop Action PdfPixelRange]
-Name=Custom Range…
+[Desktop Action PdfPixelFirst]
+Name=First Page → PNG
+Icon=application-pdf
+Exec=/usr/bin/pdfpixel --pages 1 %f
+
+[Desktop Action PdfPixelCustom]
+Name=Custom…
 Icon=application-pdf
 Exec=/usr/bin/pdfpixel --ask %f
+
+[Desktop Action PdfPixelMerge]
+Name=Merge selected PDFs
+Icon=application-pdf
+Exec=/usr/bin/pdfpixel merge %F
+
+[Desktop Action PdfPixelSplit]
+Name=Split into pages
+Icon=application-pdf
+Exec=/usr/bin/pdfpixel split %f
+
+[Desktop Action PdfPixelCompress]
+Name=Compress
+Icon=application-pdf
+Exec=/usr/bin/pdfpixel compress %f

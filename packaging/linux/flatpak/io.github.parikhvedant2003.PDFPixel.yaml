@@ -34,7 +34,7 @@ modules:
   - name: python-deps
     buildsystem: simple
     build-commands:
-      - pip3 install --prefix=/app --no-build-isolation pypdfium2 pillow
+      - pip3 install --prefix=/app --no-build-isolation pypdfium2 pillow pikepdf
     # Flathub: replace the network pip install above with generated offline
     # sources (flatpak-pip-generator pypdfium2 pillow).
 

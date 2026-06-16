@@ -20,6 +20,9 @@ python3 -m venv /tmp/benv
 pip install -q --upgrade pip
 pip install -q . pyinstaller
 
+echo "==> Regenerating declarative servicemenus (KDE .desktop / Thunar)"
+python3 packaging/linux/gen_servicemenus.py
+
 VERSION="$(python3 -c 'import pdfpixel; print(pdfpixel.__version__)')"
 ARCH="$(dpkg --print-architecture)"
 BUILD="$ROOT/build"; DIST="$BUILD/dist"
@@ -41,12 +44,18 @@ cp -r "$DIST/pdfpixel" "$STAGE/opt/pdfpixel"
 ln -sf /opt/pdfpixel/pdfpixel "$STAGE/usr/bin/pdfpixel"
 install -m 0644 "$ROOT/integrations/linux/pdfpixel_nautilus.py" \
     "$STAGE/usr/share/nautilus-python/extensions/pdfpixel.py"
+install -m 0644 "$ROOT/integrations/linux/pdfpixel_menu.py" \
+    "$STAGE/usr/share/nautilus-python/extensions/pdfpixel_menu.py"
 # Nemo (Cinnamon) + Caja (MATE) share the Nautilus-python API.
 mkdir -p "$STAGE/usr/share/nemo-python/extensions" "$STAGE/usr/share/caja-python/extensions"
 install -m 0644 "$ROOT/integrations/linux/pdfpixel_nemo.py" \
     "$STAGE/usr/share/nemo-python/extensions/pdfpixel.py" 2>/dev/null || true
+install -m 0644 "$ROOT/integrations/linux/pdfpixel_menu.py" \
+    "$STAGE/usr/share/nemo-python/extensions/pdfpixel_menu.py" 2>/dev/null || true
 install -m 0644 "$ROOT/integrations/linux/pdfpixel_caja.py" \
     "$STAGE/usr/share/caja-python/extensions/pdfpixel.py" 2>/dev/null || true
+install -m 0644 "$ROOT/integrations/linux/pdfpixel_menu.py" \
+    "$STAGE/usr/share/caja-python/extensions/pdfpixel_menu.py" 2>/dev/null || true
 # KDE Dolphin ServiceMenu + XFCE Thunar action (declarative).
 mkdir -p "$STAGE/usr/share/kio/servicemenus"
 install -m 0644 "$ROOT/integrations/linux/pdfpixel.desktop" \
@@ -60,9 +69,10 @@ Architecture: $ARCH
 Depends: libnotify-bin
 Recommends: python3-nautilus | python3-nemo | python3-caja
 Maintainer: PDFPixel <noreply@pdfpixel.local>
-Description: Right-click a PDF -> every page as a PNG image
- Adds a "Convert to Images" entry (All Pages / Custom Range) to GNOME Files,
- Nemo, Caja and Dolphin. Self-contained: bundles its PDF engine and dialog.
+Description: Right-click PDF tools - convert to images, merge, split, compress
+ Adds a "PDFPixel" submenu (convert pages to PNG/JPG/WEBP/TIFF, merge, split,
+ compress) to GNOME Files, Nemo, Caja and Dolphin. Self-contained: bundles its
+ PDF engine and dialog.
 EOF
 printf '#!/bin/sh\nset -e\nkillall nautilus nemo caja 2>/dev/null || true\n' \
     > "$STAGE/DEBIAN/postinst"
@@ -76,8 +86,8 @@ apt-get install -y -qq ruby ruby-dev build-essential rpm >/dev/null
 gem install --no-document -q fpm >/dev/null 2>&1 || gem install --no-document fpm
 printf '#!/bin/sh\nkillall nautilus nemo caja 2>/dev/null || true\n' > "$BUILD/rpm_post.sh"
 fpm -s dir -t rpm -n pdfpixel -v "$VERSION" \
-    --rpm-summary "Right-click a PDF -> every page as a PNG image" \
-    --description "Adds a Convert to Images entry to GNOME Files / Nemo / Caja / Dolphin. Self-contained." \
+    --rpm-summary "Right-click PDF tools - convert to images, merge, split, compress" \
+    --description "Adds a PDFPixel submenu (convert/merge/split/compress) to GNOME Files / Nemo / Caja / Dolphin. Self-contained." \
     --license MIT --url "https://github.com/parikhvedant2003/PDFPixel" \
     --depends libnotify \
     --after-install "$BUILD/rpm_post.sh" --after-remove "$BUILD/rpm_post.sh" \

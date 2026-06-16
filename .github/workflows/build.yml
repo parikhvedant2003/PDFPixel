@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # Build inside a Debian 11 (glibc 2.31) container so the frozen binary
-      # runs on Ubuntu 20.04+/Debian 11+/Fedora/RHEL 8+/etc. Docker pulls the
+      # runs on Ubuntu 20.04+/Debian 11+/Fedora 32+/RHEL 9+/etc. Docker pulls the
       # debian:11 image matching the runner's arch, so the same script yields
       # native amd64 and arm64 artifacts (.deb, .rpm, universal .AppImage).
       - name: Build .deb + .rpm + AppImage (old-glibc container)

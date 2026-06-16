@@ -12,8 +12,10 @@ from pathlib import Path
 
 import pypdfium2 as pdfium
 
-DPI = 200
-_SCALE = DPI / 72.0  # pypdfium2 renders relative to 72 dpi
+DEFAULT_DPI = 200  # preserve current behaviour (pypdfium2 renders relative to 72 dpi)
+
+# fmt -> output extension; "jpeg" is an alias of "jpg"
+_FMT_EXT = {"png": "png", "jpg": "jpg", "jpeg": "jpg", "webp": "webp", "tiff": "tiff"}
 
 
 @dataclass
@@ -111,13 +113,20 @@ def page_count(pdf_path: Path):
         doc.close()
 
 
-def convert_pdf(pdf_path: Path, segments=None) -> FileResult:
-    """Render pages of one PDF to PNGs in a sibling folder.
+def convert_pdf(pdf_path: Path, segments=None, fmt: str = "png",
+                dpi: int = DEFAULT_DPI) -> FileResult:
+    """Render pages of one PDF to images in a sibling folder.
 
     ``segments`` is None (all pages) or a list of (first, last) tuples
-    (None = open-ended). Renders 200 DPI PNGs named by original page number,
-    zero-padded to the document's page-count width.
+    (None = open-ended). ``fmt`` is one of png/jpg/webp/tiff ("jpeg" aliases
+    "jpg"). ``dpi`` sets the render scale (dpi / 72). Images are named by
+    original page number, zero-padded to the document's page-count width, with
+    the format's extension. JPG has no alpha so the image is flattened to RGB.
     """
+    fmt = fmt.lower()
+    ext = _FMT_EXT.get(fmt)
+    if ext is None:
+        return FileResult(pdf_path, ok=False, error=f"unsupported format: {fmt}")
     pdf_path = Path(pdf_path)
     if not os.access(pdf_path.parent, os.W_OK):
         return FileResult(pdf_path, ok=False, error="read-only directory")
@@ -136,10 +145,14 @@ def convert_pdf(pdf_path: Path, segments=None) -> FileResult:
         except OSError as e:
             return FileResult(pdf_path, ok=False, error=str(e))
         width = len(str(total))
+        scale = dpi / 72.0
         try:
             for n in pages:
-                bitmap = doc[n - 1].render(scale=_SCALE)
-                bitmap.to_pil().save(out_dir / f"{n:0{width}d}.png")
+                bitmap = doc[n - 1].render(scale=scale)
+                img = bitmap.to_pil()
+                if ext == "jpg":  # JPG has no alpha channel
+                    img = img.convert("RGB")
+                img.save(out_dir / f"{n:0{width}d}.{ext}")
         except Exception as e:  # render/save failure -> no half-written folder
             shutil.rmtree(out_dir, ignore_errors=True)
             return FileResult(pdf_path, ok=False, error=str(e))

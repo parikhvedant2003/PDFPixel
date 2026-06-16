@@ -12,6 +12,7 @@ license = { text = "MIT" }
 dependencies = [
     "pypdfium2>=4",
     "pillow>=9",
+    "pikepdf",
     "winotify>=1.1; platform_system == 'Windows'",
 ]
 

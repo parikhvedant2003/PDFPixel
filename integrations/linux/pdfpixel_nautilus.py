@@ -1,10 +1,14 @@
-"""Nautilus shim — dumb Popen of the pdfpixel CLI. All UI (range dialog,
-notification) lives in the CLI process, so this never blocks Nautilus."""
+"""Nautilus shim — thin adapter over pdfpixel_menu (the shared menu source).
+All UI (range dialog, notification) lives in the CLI process, so this never
+blocks Nautilus."""
 import os
-import shutil
 import subprocess
+import sys
 
-import gi
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # find sibling
+import pdfpixel_menu as M  # noqa: E402
+
+import gi  # noqa: E402
 try:
     gi.require_version("Nautilus", "4.0")
 except ValueError:
@@ -12,58 +16,28 @@ except ValueError:
 from gi.repository import GObject, Nautilus  # noqa: E402
 
 
-def _helper():
-    # .deb installs /usr/bin/pdfpixel; dev/pip install lands in ~/.local/bin.
-    for p in ("/usr/bin/pdfpixel", os.path.expanduser("~/.local/bin/pdfpixel")):
-        if os.path.exists(p):
-            return p
-    return shutil.which("pdfpixel") or os.path.expanduser("~/.local/bin/pdfpixel")
-
-
 class PdfPixelExtension(GObject.GObject, Nautilus.MenuProvider):
-    def _pdfs(self, files):
-        out = []
-        for f in files:
-            if f.get_uri_scheme() != "file":
-                continue
-            if f.get_mime_type() == "application/pdf":
-                out.append(f)
-        return out
-
     def get_file_items(self, *args):
         # Nautilus 4.0 passes (files,); older nautilus-python passes (window, files).
         files = args[-1]
-        pdfs = self._pdfs(files)
+        pdfs = [f for f in files
+                if M.is_pdf(f.get_uri_scheme(), f.get_mime_type())]
         if not pdfs:
             return []
 
-        top = Nautilus.MenuItem(
-            name="PdfPixel::convert",
-            label="Convert to Images",
-            tip="Render PDF pages to PNG images",
-        )
+        parent = Nautilus.MenuItem(
+            name="PdfPixel::parent", label=M.PARENT_LABEL, tip=M.PARENT_TIP)
+        submenu = Nautilus.Menu()
+        for a in M.ACTIONS:
+            # "single" actions only make sense for exactly one PDF.
+            if a.arity == "single" and len(pdfs) != 1:
+                continue
+            item = Nautilus.MenuItem(name=f"PdfPixel::{a.id}", label=a.label)
+            item.connect("activate", self._run, a, pdfs)
+            submenu.append_item(item)
+        parent.set_submenu(submenu)
+        return [parent]
 
-        if len(pdfs) == 1:
-            submenu = Nautilus.Menu()
-            all_item = Nautilus.MenuItem(
-                name="PdfPixel::all", label="All Pages", tip="Convert every page")
-            all_item.connect("activate", self._activate_all, pdfs)
-            submenu.append_item(all_item)
-            range_item = Nautilus.MenuItem(
-                name="PdfPixel::range", label="Custom Range…",
-                tip="Convert a page range you choose")
-            range_item.connect("activate", self._activate_range, pdfs[0])
-            submenu.append_item(range_item)
-            top.set_submenu(submenu)
-        else:
-            top.connect("activate", self._activate_all, pdfs)
-
-        return [top]
-
-    def _activate_all(self, menu, files):
-        paths = [f.get_location().get_path() for f in files]
-        subprocess.Popen([_helper(), *paths])
-
-    def _activate_range(self, menu, pdf):
-        path = pdf.get_location().get_path()
-        subprocess.Popen([_helper(), "--ask", path])
+    def _run(self, menu, action, pdfs):
+        paths = [f.get_location().get_path() for f in pdfs]
+        subprocess.Popen([M.helper_path(), *M.build_argv(action, paths)])
