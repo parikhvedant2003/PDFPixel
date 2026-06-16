@@ -139,10 +139,11 @@ runtime, KDE/Thunar are regenerated. (Add the matching CLI behaviour in
 - **Linux** — 5 file managers, full action set, all from `ACTIONS`.
 - **Windows** — registry cascade (`pdfpixel.reg.tmpl`, installed by Inno Setup).
 - **macOS** — Finder Quick Actions (`.workflow` bundles in `~/Library/Services`).
-- Windows/macOS menus currently expose only **All Pages** + **Custom Range**;
-  the newer verbs (merge/split/compress, formats) are available there via the
-  **CLI** but not yet wired into their native menus (parity is pending). The
-  Linux menu and the CLI are the complete surface today.
+- Windows (`packaging/windows/pdfpixel.iss` registry cascade) and macOS
+  (`integrations/macos/*.workflow` Quick Actions) expose All Pages, First Page,
+  Custom Range, Split and Compress; macOS Quick Actions also include Merge.
+  Windows Merge is CLI-only (classic shell verbs run per selected file).
+  Formats/DPI are picked via the Custom… dialog on every OS.
 
 ## Build & distribution (short version)
 Linux artifacts are built by PyInstaller **inside a Debian 11 (glibc 2.31)

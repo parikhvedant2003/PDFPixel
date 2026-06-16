@@ -31,7 +31,7 @@ rm -rf "$BUILD"; mkdir -p "$DIST"
 echo "==> PyInstaller onedir"
 pyinstaller --onedir --name pdfpixel --noconfirm \
     --paths "$ROOT" \
-    --collect-all pypdfium2 --collect-all pypdfium2_raw \
+    --collect-all pypdfium2 --collect-all pypdfium2_raw --collect-all pikepdf \
     --distpath "$DIST" --workpath "$BUILD/work" --specpath "$BUILD" \
     "$ROOT/packaging/entry.py"
 
