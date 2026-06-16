@@ -31,8 +31,10 @@ python3 -m pip install --user "$HERE"
 echo "==> Installing Nautilus extension -> $EXT_DIR/pdfpixel.py"
 mkdir -p "$EXT_DIR"
 install -m 0644 "$HERE/integrations/linux/pdfpixel_nautilus.py" "$EXT_DIR/pdfpixel.py"
+# The shim imports the shared menu spec from its own dir — it MUST ship alongside.
+install -m 0644 "$HERE/integrations/linux/pdfpixel_menu.py" "$EXT_DIR/pdfpixel_menu.py"
 
 echo "==> Reloading Nautilus"
 killall nautilus 2>/dev/null || true
 
-echo "Done. Open Files (from your dock) and right-click a PDF -> 'Convert to Images'."
+echo "Done. Open Files (from your dock) and right-click a PDF -> 'PDFPixel'."
