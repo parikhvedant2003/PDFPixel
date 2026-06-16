@@ -16,15 +16,14 @@ mkdir -p "$DIST" "$STAGE"
 echo "==> Freezing pdfpixel $VERSION with PyInstaller"
 "$PY" -m PyInstaller --onedir --name pdfpixel --noconfirm \
     --paths "$ROOT" \
-    --collect-all pypdfium2 --collect-all pypdfium2_raw \
+    --collect-all pypdfium2 --collect-all pypdfium2_raw --collect-all pikepdf \
     --distpath "$DIST" --workpath "$BUILD/work" --specpath "$BUILD" \
     "$ROOT/packaging/entry.py"
 
 echo "==> Staging .dmg contents"
 mkdir -p "$STAGE/PDFPixel"
 cp -R "$DIST/pdfpixel/." "$STAGE/PDFPixel/"
-cp -R "$ROOT/integrations/macos/PDFPixel-AllPages.workflow" "$STAGE/"
-cp -R "$ROOT/integrations/macos/PDFPixel-CustomRange.workflow" "$STAGE/"
+cp -R "$ROOT/integrations/macos/"PDFPixel-*.workflow "$STAGE/"
 cp "$ROOT/packaging/macos/Install PDFPixel.command" "$STAGE/"
 chmod +x "$STAGE/Install PDFPixel.command"
 

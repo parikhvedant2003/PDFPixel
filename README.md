@@ -65,8 +65,10 @@ right-click menu — a sandbox/portability limit), but run anywhere:
 1. Download **`pdfpixel-setup.exe`** and run it (**per-user, no admin**).
 2. **SmartScreen** — "Windows protected your PC": **More info** → **Run anyway**.
 3. Finish the installer (installs to `%LOCALAPPDATA%\Programs\PDFPixel`).
-4. **Right-click a PDF** → **PDFPixel** → **All Pages** / **Custom Range…**
+4. **Right-click a PDF** → **PDFPixel** → **All Pages** / **First Page** /
+   **Custom Range…** / **Split into Pages** / **Compress**
    (Windows 11: under **Show more options**, or press **Shift+F10**).
+   *(Merge is command-line only on Windows — classic shell verbs run per file.)*
 
 Uninstall via *Settings ▸ Apps* (removes the menu entry too).
 
@@ -84,7 +86,8 @@ cleanly):
    This copies the app to `/Applications/PDFPixel`, installs the Quick Actions to
    `~/Library/Services`, and clears the quarantine flag.
 3. **Right-click a PDF** in Finder → **Quick Actions** → **PDFPixel: All Pages** /
-   **PDFPixel: Custom Range…**.
+   **First Page** / **Custom Range…** / **Split into Pages** / **Compress** /
+   **Merge PDFs** (select 2+ PDFs for Merge).
 4. Not listed? Enable it under **System Settings → Privacy & Security →
    Extensions → Finder** (or **Keyboard → Keyboard Shortcuts → Services**).
 
@@ -140,5 +143,6 @@ The codebase is a thin file-manager shim that launches a self-contained CLI
 - **Sandboxed builds** (Flatpak/Snap) and the AppImage/pip CLI can't install a
   host file-manager menu — that's a platform limit. The full right-click menu
   ships with the `.deb`/`.rpm`/AUR packages.
-- **Windows/macOS native menus** currently expose All Pages + Custom Range; the
-  newer actions are available there via the CLI (parity is in progress).
+- **Windows/macOS menus** now expose the full action set (All Pages, First Page,
+  Custom Range, Split, Compress; macOS also Merge). Windows Merge stays CLI-only
+  (classic shell verbs run per selected file). Lands in the next release build.

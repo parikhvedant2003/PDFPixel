@@ -53,9 +53,10 @@ desktop notification confirms when it's done.
 > KDE Dolphin, and XFCE Thunar are all supported (Thunar needs a one-time manual
 > step — see `integrations/linux/thunar-actions.md`).
 >
-> **Windows & macOS:** the native right-click menu currently offers **All Pages**
-> and **Custom Range** only. The other actions (merge, split, compress, other
-> formats) are available there through the [command line](#3-command-line).
+> **Windows & macOS:** the native menu now exposes **All Pages**, **First Page**,
+> **Custom Range**, **Split** and **Compress** (macOS Quick Actions also include
+> **Merge**). On Windows, **Merge** is command-line only (classic shell verbs run
+> per file). Format/DPI are chosen in the Custom… dialog on every OS.
 
 ---
 

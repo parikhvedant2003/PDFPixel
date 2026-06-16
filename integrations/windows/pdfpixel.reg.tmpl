@@ -6,8 +6,11 @@ Windows Registry Editor Version 5.00
 ; (double backslashes), e.g. C:\\Users\\you\\AppData\\Local\\Programs\\PDFPixel\\pdfpixel.exe
 
 [HKEY_CURRENT_USER\Software\Classes\SystemFileAssociations\.pdf\shell\PdfPixel]
-"MUIVerb"="Convert to Images"
+"MUIVerb"="PDFPixel"
 "ExtendedSubCommandsKey"="PdfPixel.SubCommands"
+
+; NOTE: classic shell verbs run once per selected file (%1), so "Merge" (needs
+; all selected files at once) is CLI-only on Windows and not listed here.
 
 [HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\01all]
 "MUIVerb"="All Pages"
@@ -15,8 +18,26 @@ Windows Registry Editor Version 5.00
 [HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\01all\command]
 @="\"__EXE__\" \"%1\""
 
-[HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\02range]
+[HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\02first]
+"MUIVerb"="First Page"
+
+[HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\02first\command]
+@="\"__EXE__\" --pages 1 \"%1\""
+
+[HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\03range]
 "MUIVerb"="Custom Range..."
 
-[HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\02range\command]
+[HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\03range\command]
 @="\"__EXE__\" --ask \"%1\""
+
+[HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\04split]
+"MUIVerb"="Split into Pages"
+
+[HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\04split\command]
+@="\"__EXE__\" split \"%1\""
+
+[HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\05compress]
+"MUIVerb"="Compress"
+
+[HKEY_CURRENT_USER\Software\Classes\PdfPixel.SubCommands\shell\05compress\command]
+@="\"__EXE__\" compress \"%1\""
